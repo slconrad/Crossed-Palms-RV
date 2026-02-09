@@ -749,102 +749,69 @@ input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px s
     }
 }
 /* FISHING CARD STYLES */
-.fishing-card {
+/* LIVE CARD STYLING */
+.live-card {
     display: flex;
-    background: #fff;
-    border-radius: 15px;
+    background: #0D1B2A; /* Match your Navy */
+    color: white;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    border: 1px solid #eee;
-    margin-bottom: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 193, 7, 0.2); /* Subtle Gold Border */
 }
 
-.fishing-content {
-    flex: 1.5;
-    padding: 40px;
-}
-
-.fishing-image {
+.lake-stats {
     flex: 1;
-    background: #0D1B2A; /* Fallback navy */
+    padding: 30px;
+    border-right: 1px solid rgba(255,255,255,0.1);
 }
 
-.fishing-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.report-tag {
-    background: var(--gold);
-    color: var(--navy);
-    padding: 5px 12px;
-    font-size: 0.75rem;
+.live-indicator {
+    color: #4CAF50; /* Green for "Live" */
+    font-size: 0.7rem;
     font-weight: 800;
-    text-transform: uppercase;
-    border-radius: 4px;
-    display: inline-block;
+    letter-spacing: 1px;
+    display: block;
     margin-bottom: 10px;
 }
 
-.fishing-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    margin: 25px 0;
-}
-
-.fish-stat .label {
-    display: block;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 5px;
-}
-
-.status {
-    font-size: 0.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 3px;
-}
-
-.status.good { background: #e6fffa; color: #2c7a7b; }
-.status.excellent { background: #f0fff4; color: #2f855a; }
-.status.fair { background: #fffaf0; color: #9c4221; }
-
-.fishing-footer {
-    border-top: 1px solid #eee;
-    padding-top: 20px;
+.stat-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.btn-fishing {
-    background: var(--navy);
-    color: var(--gold);
-    padding: 10px 20px;
+.stat-label { color: #a0aec0; font-size: 0.9rem; }
+.stat-value { font-weight: 700; color: #fff; }
+.text-gold { color: #FFC107; }
+
+.lake-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #FFC107;
     text-decoration: none;
-    font-weight: 700;
-    border-radius: 5px;
-    transition: 0.3s;
+    font-weight: 600;
+    font-size: 0.85rem;
 }
 
-.btn-fishing:hover {
-    background: var(--gold);
-    color: var(--navy);
+/* WEATHER COLUMN */
+.weather-widget-container {
+    flex: 1.5;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
 }
 
-/* MOBILE FIXES */
-@media (max-width: 992px) {
-    .fishing-card {
+/* RESPONSIVE STACKING */
+@media (max-width: 768px) {
+    .live-card {
         flex-direction: column;
     }
-    .fishing-image {
-        height: 250px;
-        order: -1; /* Image moves to top on mobile */
+    .lake-stats {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 }
