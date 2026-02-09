@@ -797,34 +797,18 @@
 <!-- End RV Map Widget -->
  <!-- Fishing Report Section -->
 <section id="fishing-forecast" style="padding: 40px 20px; text-align: center; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-    <h2 style="color: #333; margin-bottom: 20px;">Lavon Lake Fishing Forecast</h2>
+    <h2 style="color: #333; margin-bottom: 20px;">Lavon Lake</h2>
     
     <div style="max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); background: #fff;">
         <div style="background: #004d7a; color: white; padding: 20px;">
-            <h3 style="margin: 0; font-size: 1.4em;">Daily Biting Outlook</h3>
-            <p style="margin: 5px 0 0; opacity: 0.9;">Solunar feeding periods & activity</p>
-        </div>
-
-        <div style="padding: 30px 20px; border-bottom: 1px solid #eee;">
-            <div style="font-size: 3em; font-weight: bold; color: #F58220;">74%</div>
-            <div style="text-transform: uppercase; letter-spacing: 1px; font-weight: bold; color: #555;">Good Biting Conditions</div>
-        </div>
-
-        <div style="display: flex; justify-content: space-around; padding: 20px; background: #fdfdfd;">
-            <div style="text-align: center;">
-                <div style="font-size: 0.8em; color: #888; text-transform: uppercase;">Major Period</div>
-                <div style="font-weight: bold; color: #333;">8:15 AM - 10:15 AM</div>
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 0.8em; color: #888; text-transform: uppercase;">Minor Period</div>
-                <div style="font-weight: bold; color: #333;">2:30 PM - 4:00 PM</div>
-            </div>
-        </div>
-
-        <div style="padding: 15px; background: #f1f1f1;">
-            <a href="https://tides4fishing.com/us/texas/lavon-lake" target="_blank" style="display: inline-block; padding: 10px 20px; background: #F58220; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background 0.3s;">
-                View Full Solunar Chart
-            </a>
+         <div id="meteostation-widget-MADIS_LVNT2"></div>
+        <script type="text/javascript" src="https://windy.app/widgets-code/meteostation-widget-v2/dist/widget.min.js?v1"></script>
+        <script>
+        MeteostationWidget.init('#meteostation-widget-MADIS_LVNT2', 'MADIS_LVNT2', {
+            locale: 'en-US',
+            showForecast: true
+        });
+        </script>
         </div>
     </div>
 </section>
