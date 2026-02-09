@@ -673,8 +673,9 @@
 </div>
 <script>
 (function() {
-    const ORIGINAL_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFWweHkDc-r6bl6vXQ45m7rst5jpVzSD14g8qadVeMIQYF83pXkHAAvKbBKmCDtTl-DgQ2PkNLnMoQ/pub?gid=1432684909&single=true&output=csv';
-    const SHEET_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(ORIGINAL_SHEET_URL);
+    // 1. DATA SOURCE: Your new, private Cloudflare Worker (Fast & Clean)
+    const SHEET_URL = 'https://rv-map-proxy.techlabs.workers.dev'; 
+    
     const OCCUPIED_COLOR = '#F58220';
     const AVAILABLE_COLOR = '#00A651';
     const DEFAULT_COLOR = '#cccccc';
@@ -713,7 +714,8 @@
             updateMapColors(lotStatusMap);
             
             const now = new Date().toLocaleString();
-            document.getElementById('rvLastUpdated').textContent = `Last Updated: ${now}`;
+            const timeEl = document.getElementById('rvLastUpdated');
+            if (timeEl) timeEl.textContent = `Last Updated: ${now}`;
             
         } catch (error) {
             console.error('RV Map: Error loading data:', error);
@@ -749,7 +751,6 @@
             const lotNumber = lotElement.getAttribute('data-lot');
             const status = lotStatusMap[lotNumber] || 'unknown';
             
-            // Set the data-status attribute so it can be read by click handlers
             lotElement.setAttribute('data-status', status);
             
             if (status === 'occupied') {
