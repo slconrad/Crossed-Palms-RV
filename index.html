@@ -673,9 +673,10 @@
 </div>
 <script>
 (function() {
-    // 1. DATA SOURCE & PROXY
-    const ORIGINAL_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFWweHkDc-r6bl6vXQ45m7rst5jpVzSD14g8qadVeMIQYF83pXkHAAvKbBKmCDtTl-DgQ2PkNLnMoQ/pub?gid=1432684909&single=true&output=csv';
-    const SHEET_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(ORIGINAL_SHEET_URL) + '&cachebust=' + new Date().getTime();
+    // 1. THE FIX: Using Google's direct CSV endpoint (Instant Load / No Proxy needed)
+    const SHEET_ID = '1vSFWweHkDc-r6bl6vXQ45m7rst5jpVzSD14g8qadVeMIQYF83pXkHAAvKbBKmCDtTl-DgQ2PkNLnMoQ';
+    const GID = '1432684909';
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
     
     const OCCUPIED_COLOR = '#F58220';
     const AVAILABLE_COLOR = '#00A651';
@@ -683,108 +684,114 @@
     
     async function loadRVMapData() {
         try {
-            console.log("CORS Fetch initiated...");
+            // Fetch directly from Google - no more 8-15 second wait
             const response = await fetch(SHEET_URL);
-            if (!response.ok) throw new Error('Proxy error');
-            
             const csvText = await response.text();
             const lines = csvText.trim().split('\n');
+            
             if (lines.length < 2) return;
             
-            // Clean headers aggressively
-            const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase().replace(/["']/g, ""));
+            // CLEANING: Google adds quotes (e.g. "Lot") so we strip them to match your original logic
+            const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase().replace(/"/g, ''));
             const lotIndex = headers.indexOf('lot');
             const statusIndex = headers.indexOf('status');
             
             if (lotIndex === -1 || statusIndex === -1) return;
             
             const lotStatusMap = {};
+            
             for (let i = 1; i < lines.length; i++) {
-                const columns = parseCSVLine(lines[i]).map(c => c.trim().replace(/["']/g, ""));
+                if (!lines[i].trim()) continue;
+                
+                // CLEANING: Strip quotes from data cells (e.g. "Occupied" becomes Occupied)
+                const columns = parseCSVLine(lines[i]).map(c => c.trim().replace(/"/g, ''));
+                
                 if (columns.length > Math.max(lotIndex, statusIndex)) {
                     const lotNumber = columns[lotIndex];
                     const status = columns[statusIndex].toLowerCase();
-                    if (lotNumber) lotStatusMap[lotNumber] = status;
+                    
+                    if (lotNumber) {
+                        lotStatusMap[lotNumber] = status;
+                    }
                 }
             }
             
-            // Apply colors only once the DOM is definitely ready
-            applyMapColors(lotStatusMap);
+            updateMapColors(lotStatusMap);
             
-            const timeEl = document.getElementById('rvLastUpdated');
-            if(timeEl) timeEl.textContent = `Last Updated: ${new Date().toLocaleString()}`;
+            const now = new Date().toLocaleString();
+            const lastUpdatedEl = document.getElementById('rvLastUpdated');
+            if (lastUpdatedEl) lastUpdatedEl.textContent = `Last Updated: ${now}`;
             
         } catch (error) {
-            console.error('CORS Data Load Error:', error);
+            console.error('RV Map: Error loading data:', error);
         }
     }
     
     function parseCSVLine(line) {
         const result = [];
-        let current = '', inQuotes = false;
-        for (let char of line) {
-            if (char === '"') inQuotes = !inQuotes;
-            else if (char === ',' && !inQuotes) { result.push(current); current = ''; }
-            else current += char;
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
         }
         result.push(current);
+        
         return result;
     }
     
-    function applyMapColors(lotStatusMap) {
+    function updateMapColors(lotStatusMap) {
         const allLots = document.querySelectorAll('.rv-lot');
         
-        if (allLots.length === 0) {
-            // If the SVG hasn't loaded yet, try again in 100ms
-            setTimeout(() => applyMapColors(lotStatusMap), 100);
-            return;
-        }
-
-        allLots.forEach(lot => {
-            const lotNumber = lot.getAttribute('data-lot');
-            const status = (lotStatusMap[lotNumber] || 'unknown').toLowerCase();
+        allLots.forEach(lotElement => {
+            const lotNumber = lotElement.getAttribute('data-lot');
+            // Support both direct match and integer match for "Lot 1" vs "Lot 01"
+            const status = lotStatusMap[lotNumber] || 'unknown';
             
-            lot.setAttribute('data-status', status);
+            lotElement.setAttribute('data-status', status);
             
             if (status === 'occupied') {
-                lot.style.fill = OCCUPIED_COLOR;
+                lotElement.style.fill = OCCUPIED_COLOR;
             } else if (status === 'available') {
-                lot.style.fill = AVAILABLE_COLOR;
+                lotElement.style.fill = AVAILABLE_COLOR;
             } else {
-                lot.style.fill = DEFAULT_COLOR;
+                lotElement.style.fill = DEFAULT_COLOR;
             }
         });
     }
     
     function setupClickHandlers() {
-        // Event Delegation: One listener for all future-loaded lots
-        document.addEventListener('click', function(e) {
-            const lot = e.target.closest('.rv-lot');
-            if (!lot) return;
-
-            const lotNumber = lot.getAttribute('data-lot');
-            const status = lot.getAttribute('data-status') || 'unknown';
-            
-            let message = (status === 'occupied') 
-                ? `Lot ${lotNumber}: Occupied. Call (469) 664-9335 for waitlist.` 
-                : (status === 'available')
-                ? `Lot ${lotNumber}: Available! Call (469) 664-9335 to book.`
-                : `Lot ${lotNumber}: Contact us at (469) 664-9335 for info.`;
-            
-            alert(message);
+        document.querySelectorAll('.rv-lot').forEach(lot => {
+            lot.addEventListener('click', function() {
+                const lotNumber = this.getAttribute('data-lot');
+                const status = this.getAttribute('data-status');
+                
+                let message;
+                if (status === 'occupied') {
+                    message = `Lot ${lotNumber}: This lot is not available. Please choose another lot, or call the office at (469) 664-9335.`;
+                } else if (status === 'available') {
+                    message = `Lot ${lotNumber}: is available! Please contact the office to book your stay. (469) 664-9335.`;
+                } else {
+                    message = `Lot ${lotNumber}: Please contact the office for availability. (469) 664-9335.`;
+                }
+                
+                alert(message);
+            });
         });
     }
-
-    // Initialize
-    setupClickHandlers();
     
-    // Wait for the SVG to exist before running the first fetch
-    if (document.readyState === 'complete') {
-        loadRVMapData();
-    } else {
-        window.addEventListener('load', loadRVMapData);
-    }
-
+    // EXECUTION
+    setupClickHandlers();
+    loadRVMapData();
     setInterval(loadRVMapData, 300000);
 })();
 </script>
