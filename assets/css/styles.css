@@ -45,34 +45,42 @@ ul { list-style: none; }
 
 /* MOBILE ADJUSTMENTS */
 @media (max-width: 768px) {
-    .nav-header {
-        height: 70px; /* Slightly shorter header for mobile screens */
+    /* 1. Ensure the main container doesn't expand past the screen */
+    .nav-container {
+        padding: 0 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px; /* Force a consistent header height */
     }
 
-    .brand-link {
+    /* 2. Target the logo div to align image and text */
+    .navbar .logo {
         display: flex !important;
-        align-items: center !important; /* Forces vertical alignment */
-        gap: 8px; /* Tighter gap for mobile */
-        height: 100%;
-        text-decoration: none;
+        align-items: center !important;
+        font-size: 1rem !important; /* Shrink text size for mobile */
+        white-space: nowrap; /* Keep CROSSED PALMS RV on one line */
+        font-weight: 700;
+        flex: 1; /* Allows it to take up available space */
     }
 
-    /* 2. Constrain the logo height to prevent pushing the nav bar down */
-    .nav-logo {
-        max-height: 40px !important; /* Smaller height for mobile nav */
+    /* 3. Constrain the logo image height */
+    .nav-logo-container .nav-logo {
+        max-height: 45px !important; /* Smaller logo for mobile */
         width: auto;
-        flex-shrink: 0; /* Prevents logo from being squashed */
+        display: block;
+        margin-right: 5px; /* Replaces the need for &nbsp; */
     }
 
-    /* 3. Shrink the text and prevent wrapping */
-    .brand-name {
-        font-size: 1.1rem !important; /* Smaller font to fit the width */
-        white-space: nowrap; /* Forces text to stay on one line */
-        line-height: 1; /* Removes extra vertical padding */
-        display: inline-block;
-        vertical-align: middle;
-        letter-spacing: 0.5px;
-        margin: 0; /* Reset any default margins */
+    /* 4. Ensure the text spans don't wrap */
+    .logo .gold-text {
+        font-size: 1rem !important;
+    }
+
+    /* 5. Keep the hamburger menu aligned with the centered logo */
+    .hamburger {
+        margin-left: 10px;
+        flex-shrink: 0;
     }
 }
 h1 {
