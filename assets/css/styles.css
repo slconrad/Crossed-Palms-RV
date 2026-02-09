@@ -33,10 +33,10 @@ ul { list-style: none; }
 
 .nav-logo {
     /* This keeps the logo perfectly sized to your header */
-    max-height: 60px; /* Leaves 10px padding top/bottom if header is 80px */
-    width: auto; /* Maintains original aspect ratio */
-    display: block;
-    transition: transform 0.3s ease;
+    max-height: 50px; /* Constrains logo height */
+    width: auto;
+    flex-shrink: 0; /* Prevents logo from squishing */
+    
 }
 
 .nav-logo:hover {
@@ -50,7 +50,7 @@ ul { list-style: none; }
     }
 
     .nav-logo {
-        max-height: 50px; /* Prevents the logo from feeling too bulky on small phones */
+        max-height: 40px; /* Prevents the logo from feeling too bulky on small phones */
     }
 }
 h1 {
