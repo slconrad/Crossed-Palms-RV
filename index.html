@@ -673,8 +673,8 @@
 </div>
 <script>
 (function() {
-    // 1. DATA SOURCE: Your new, private Cloudflare Worker (Fast & Clean)
-    const SHEET_URL = 'https://rv-map-proxy.techlabs.workers.dev'; 
+    // 1. YOUR WORKER URL
+    const SHEET_URL = 'https://falling-bird-1326.techlabs.workers.dev/';
     
     const OCCUPIED_COLOR = '#F58220';
     const AVAILABLE_COLOR = '#00A651';
@@ -682,16 +682,21 @@
     
     async function loadRVMapData() {
         try {
+            console.log("Fetching data from Worker...");
             const response = await fetch(SHEET_URL);
+            if (!response.ok) throw new Error('Worker fetch failed');
+            
             const csvText = await response.text();
             const lines = csvText.trim().split('\n');
             
             if (lines.length < 2) return;
             
-            const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+            // Clean headers (Aggressive cleaning to ensure 'lot' and 'status' match)
+            const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase().replace(/[^a-z]/g, ""));
             const lotIndex = headers.indexOf('lot');
             const statusIndex = headers.indexOf('status');
             
+            console.log("Found indices:", lotIndex, statusIndex);
             if (lotIndex === -1 || statusIndex === -1) return;
             
             const lotStatusMap = {};
@@ -703,7 +708,8 @@
                 
                 if (columns.length > Math.max(lotIndex, statusIndex)) {
                     const lotNumber = columns[lotIndex];
-                    const status = columns[statusIndex].toLowerCase();
+                    // Normalize status string
+                    const status = columns[statusIndex].toLowerCase().replace(/[^a-z]/g, "");
                     
                     if (lotNumber) {
                         lotStatusMap[lotNumber] = status;
@@ -718,7 +724,7 @@
             if (timeEl) timeEl.textContent = `Last Updated: ${now}`;
             
         } catch (error) {
-            console.error('RV Map: Error loading data:', error);
+            console.error('RV Map Error:', error);
         }
     }
     
@@ -729,7 +735,6 @@
         
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
-            
             if (char === '"') {
                 inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
@@ -740,12 +745,12 @@
             }
         }
         result.push(current);
-        
         return result;
     }
     
     function updateMapColors(lotStatusMap) {
         const allLots = document.querySelectorAll('.rv-lot');
+        console.log("Applying colors to lots:", allLots.length);
         
         allLots.forEach(lotElement => {
             const lotNumber = lotElement.getAttribute('data-lot');
@@ -753,6 +758,7 @@
             
             lotElement.setAttribute('data-status', status);
             
+            // Strict match for status
             if (status === 'occupied') {
                 lotElement.style.fill = OCCUPIED_COLOR;
             } else if (status === 'available') {
@@ -777,7 +783,6 @@
                 } else {
                     message = `Lot ${lotNumber}: Please contact the office for availability. (469) 664-9335.`;
                 }
-                
                 alert(message);
             });
         });
